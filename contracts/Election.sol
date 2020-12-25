@@ -1,6 +1,14 @@
-pragma solidity >=0.4.22 <0.8.0;
+pragma solidity ^0.5.16;
 
 contract Election {
+    address admin;
+    modifier OnlyAdmin() {
+        require(admin==msg.sender);
+        _;
+    }
+    constructor(address _admin) public {
+        admin= _admin;
+    }
     // Model a Candidate
     struct Candidate {
         uint id;
@@ -8,18 +16,6 @@ contract Election {
         uint voteCount;
     }
 
-    // Model a User
-    struct User {
-        uint uid;
-        string name;
-        bool isVoted;
-        string aadhar;
-        string location;
-        uint pinCode;
-    }
-    // Store users
-    mapping (uint => User) public users;
-    uint public usersCount;
     // Store accounts that have voted
     mapping(address => bool) public voters;
     // Store Candidates
@@ -33,17 +29,8 @@ contract Election {
         uint indexed _candidateId
     );
 
-    constructor () public {
-        addCandidate("Candidate 1");
-        addCandidate("Candidate 2");
-        addCandidate("Candidate 3");
-    }
-    function addUser (uint uid,string memory _name, bool _isVoted, string memory _aadhar, string memory _location,uint  _pinCode) private {
-        usersCount++;
-        users[usersCount] = User(uid,_name,_isVoted,_aadhar,_location,_pinCode);
-    }
-
-    function addCandidate (string memory _name) private {
+    
+    function addCandidate (string calldata _name) external OnlyAdmin {
         candidatesCount ++;
         candidates[candidatesCount] = Candidate(candidatesCount, _name, 0);
     }
