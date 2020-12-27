@@ -1,10 +1,21 @@
-pragma solidity ^0.5.16;
+pragma solidity >=0.4.22 <0.8.0;
 
 contract Election {
-    address admin;
+    bool public isOnGoing;
+    address public admin;
     modifier OnlyAdmin() {
         require(admin==msg.sender);
         _;
+    }
+     modifier OnlyRuningElection() {
+        require(isOnGoing==true);
+        _;
+    }
+    event statusChanged(bool status);
+    
+    function changeElectionStatus(bool _status) external OnlyAdmin {
+        isOnGoing=_status;
+        emit statusChanged(isOnGoing);
     }
     constructor(address _admin) public {
         admin= _admin;
@@ -28,14 +39,17 @@ contract Election {
     event votedEvent (
         uint indexed _candidateId
     );
-
     
+    //candidate event 
+    event candidateAdded(uint candidateId);
     function addCandidate (string calldata _name) external OnlyAdmin {
         candidatesCount ++;
         candidates[candidatesCount] = Candidate(candidatesCount, _name, 0);
+        //Trigger the event
+        emit candidateAdded(candidatesCount);
     }
 
-    function vote (uint _candidateId) public {
+    function vote (uint _candidateId) public OnlyRuningElection {
         // require that they haven't voted before
         require(!voters[msg.sender]);
 

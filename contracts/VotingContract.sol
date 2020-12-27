@@ -9,12 +9,14 @@ contract VotingContract {
    
    mapping(uint=>VotingEvents) public events_array;
    uint eventsCount;
+   event newEventCreated (uint id);
    function addNewEvent(string calldata _name) external {
        eventsCount++;
        address admin=msg.sender;
        Election newEvent = new Election(admin);
        address e1= address (newEvent);
        events_array[eventsCount]=VotingEvents(eventsCount,_name,e1);
+       emit  newEventCreated(eventsCount);
    }
    
 }
